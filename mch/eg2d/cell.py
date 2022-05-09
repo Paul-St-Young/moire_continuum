@@ -45,3 +45,12 @@ def sort_pos2d(pos, axes, nx, ny):
     i1 = np.argsort(fracs[istart:istart+ny, 1])
     pos1[range(istart, istart+ny)] = pos1[istart+i1]
   return pos1
+
+def nxny_from_nelec(nelec):
+  nx = int(round(np.sqrt(nelec)))
+  ny = nx//2
+  nexpect = nx*ny*2
+  if nexpect != nelec:
+    msg = 'expected %dx%dx2=%d not %d' % (nx, ny, nexpect, nelec)
+    raise RuntimeError(msg)
+  return nx, ny
