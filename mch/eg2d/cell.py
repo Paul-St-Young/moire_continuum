@@ -1,0 +1,47 @@
+import numpy as np
+
+def volume_per_particle(rs, ndim=2):
+  return 2*(ndim-1)/ndim*np.pi*rs**ndim
+
+def square_cell(rs, nelec, ndim=2):
+  vol = volume_per_particle(rs, ndim=ndim)
+  alat = (vol*nelec)**(1./ndim)
+  axes = alat*np.eye(ndim)
+  return axes
+
+def triangular_primive_cell(rs):
+  vol = volume_per_particle(rs, ndim=2)
+  alat = ((2./3**0.5)*vol)**0.5
+  axes0 = alat*np.array([
+    [1, 0],
+    [-1./2, 3**0.5/2],
+  ])
+  return axes0
+
+def matrix_2d_to_3d(mat2d):
+  mat3d = np.eye(3)
+  mat3d[:2, :2] = mat2d
+  return mat3d
+
+def make_ase_atoms(axes, pos, elem=None):
+  from ase import Atoms
+  from ase.units import Bohr  # convert Bohr to Angstrom
+  if elem is None:
+    elem = ['H']*len(pos)
+  axes1 = axes*Bohr
+  pos1 = pos*Bohr
+  atoms = Atoms(''.join(elem), cell=axes1, positions=pos1, pbc=True)
+  return atoms
+
+def sort_pos2d(pos, axes, nx, ny):
+  fracs = np.dot(pos, np.linalg.inv(axes))
+  # first sort x
+  idx = np.argsort(fracs[:, 0])
+  pos1 = pos[idx]
+  fracs = fracs[idx]
+  # second sort y
+  for ix in range(nx):
+    istart = ny*ix
+    i1 = np.argsort(fracs[istart:istart+ny, 1])
+    pos1[range(istart, istart+ny)] = pos1[istart+i1]
+  return pos1
