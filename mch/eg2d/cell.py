@@ -57,3 +57,15 @@ def nxny_from_nelec(nelec):
     msg = 'expected %dx%dx2=%d not %d' % (nx, ny, nexpect, nelec)
     raise RuntimeError(msg)
   return nx, ny
+
+def simulationcell2d(axes, handler='ewald_strict2d', rckc=30):
+  axes1 = np.eye(3)
+  axes1[:2, :2] = axes[:2, :2]
+  rcut = axes_pos.rins(axes1[:2, :2])
+  axes1[2, 2] = 2*rcut  # fake Lz
+  sc = qmcpack_in.simulationcell_from_axes(axes1)
+  xml.set_param(sc, "LR_handler", handler, new=True)
+  xml.set_param(sc, "ndim", '2', new=True)
+  xml.set_param(sc, "bconds", "p p n")
+  xml.set_param(sc, "LR_dim_cutoff", str(rckc))
+  return sc
