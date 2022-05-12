@@ -59,6 +59,8 @@ def nxny_from_nelec(nelec):
   return nx, ny
 
 def simulationcell2d(axes, handler='ewald_strict2d', rckc=30):
+  from qharv.inspect import axes_pos
+  from qharv.seed import xml, qmcpack_in
   axes1 = np.eye(3)
   axes1[:2, :2] = axes[:2, :2]
   rcut = axes_pos.rins(axes1[:2, :2])
