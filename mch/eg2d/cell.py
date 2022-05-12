@@ -49,6 +49,9 @@ def sort_pos2d(pos, axes, nx, ny):
 def nxny_from_nelec(nelec):
   nx = int(round(np.sqrt(nelec)))
   ny = nx//2
+  if nelec == 56:
+    nx = 7
+    ny = 4
   nexpect = nx*ny*2
   if nexpect != nelec:
     msg = 'expected %dx%dx2=%d not %d' % (nx, ny, nexpect, nelec)
