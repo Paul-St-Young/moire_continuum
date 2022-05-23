@@ -64,6 +64,18 @@ def nxny_from_nelec(nelec):
     raise RuntimeError(msg)
   return nx, ny
 
+def tile_cell(axes0, tmat, edge_tol=1e-8):
+  from qharv.inspect import axes_pos
+  ndim = len(axes0)
+  nsh = 2*np.diag(tmat).max()
+  fracs = axes_pos.cubic_pos(nsh, ndim=ndim)
+  f1 = np.dot(fracs, np.linalg.inv(tmat))
+  sel = np.ones(len(f1), dtype=bool)
+  for idim in range(ndim):
+    sel = sel & (0-edge_tol <= f1[:, idim]) & (f1[:, idim] < 1-edge_tol)
+  pos = np.dot(fracs[sel], axes0)
+  return pos
+
 def simulationcell2d(axes, handler='ewald_strict2d', rckc=30):
   from qharv.inspect import axes_pos
   from qharv.seed import xml, qmcpack_in
