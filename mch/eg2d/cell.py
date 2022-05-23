@@ -52,6 +52,12 @@ def nxny_from_nelec(nelec):
   if nelec == 56:
     nx = 7
     ny = 4
+  elif nelec == 80:
+    nx = 8
+    ny = 5
+  elif nelec == 120:
+    nx = 10
+    ny = 6
   nexpect = nx*ny*2
   if nexpect != nelec:
     msg = 'expected %dx%dx2=%d not %d' % (nx, ny, nexpect, nelec)
