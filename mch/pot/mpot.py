@@ -1,3 +1,5 @@
+import numpy as np
+
 def mpot(rvecs, am, phi, vm):
   bm = 4*np.pi/3**0.5/am
   raxes = bm*np.array([
