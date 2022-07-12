@@ -49,7 +49,10 @@ def sort_pos2d(pos, axes, nx, ny):
 def nxny_from_nelec(nelec):
   nx = int(round(np.sqrt(nelec)))
   ny = nx//2
-  if nelec == 56:
+  if nelec == 15:
+    nx = 5
+    ny = 3
+  elif nelec == 56:
     nx = 7
     ny = 4
   elif nelec == 80:
@@ -89,3 +92,35 @@ def simulationcell2d(axes, handler='ewald_strict2d', rckc=30):
   xml.set_param(sc, "bconds", "p p n")
   xml.set_param(sc, "LR_dim_cutoff", str(rckc))
   return sc
+
+def random_pos(axes, nelec):
+  fracs2d = np.random.rand(nelec, 2)
+  pos2d = np.dot(fracs2d, axes)
+  pos = np.zeros([nelec, 3])
+  pos[:, :2] = pos2d
+  return pos
+
+def make_sposet(nelecs, twist, spo_type='pw'):
+  from qharv.seed import xml
+  spo_name = 'spo-ud'  # !!!! hard-code one SPO set for all species
+  spo_map = dict()
+  nl = []
+  for name, n in nelecs.items():
+    spo_map[name] = spo_name
+    nl.append(n)
+  mxelec = max(nl)
+  tt = ' '.join(twist.astype(str))
+  bb = xml.make_node('sposet_builder', {'type': spo_type})
+  spo = xml.make_node('sposet', {'name': spo_name, 'size': str(mxelec), 'twist': tt})
+  bb.append(spo)
+  return bb, spo_map
+
+def make_detset(spo_map):
+  from qharv.seed import xml
+  detset = xml.make_node('determinantset')
+  sdet = xml.make_node('slaterdeterminant')
+  detset.append(sdet)
+  for species, spo_name in spo_map.items():
+    det = xml.make_node('determinant', {'id': 'det%s' % species, 'sposet': spo_name})
+    sdet.append(det)
+  return detset
