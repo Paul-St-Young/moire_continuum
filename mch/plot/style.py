@@ -6,3 +6,10 @@ def colormap():
     'para': '#6a3d9a',
   }
   return mag_v2c
+
+def add_legend(ax, mags, **kwargs):
+  from qharv.field import kyrt
+  mag_v2c = colormap()
+  styles = [{'color': mag_v2c[mag]} for mag in mags]
+  labels = mags
+  return kyrt.create_legend(ax, styles, labels, **kwargs)
