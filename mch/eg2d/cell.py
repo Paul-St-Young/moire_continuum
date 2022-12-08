@@ -1,5 +1,18 @@
 import numpy as np
 
+def density_to_rs(n_in_cmm2, eps=1, mstar=1):
+  bohr = 0.529177210903
+  a_in_meter = 1./(np.pi*n_in_cmm2)**0.5/1e2
+  a_in_bohr = a_in_meter*1e10/bohr
+  return a_in_bohr*mstar/eps
+
+def rs_to_density(rs, eps=1, mstar=1):
+  bohr = 0.529177210903
+  a_in_bohr = rs*eps/mstar
+  a_in_cm = a_in_bohr*bohr*1e-8
+  n_in_cmm2 = 1./(np.pi*a_in_cm**2)
+  return n_in_cmm2
+
 def volume_per_particle(rs, ndim=2):
   return 2*(ndim-1)/ndim*np.pi*rs**ndim
 
@@ -47,20 +60,36 @@ def sort_pos2d(pos, axes, nx, ny):
   return pos1
 
 def nxny_from_nelec(nelec):
-  nx = int(round(np.sqrt(nelec)))
-  ny = nx//2
-  if nelec == 15:
-    nx = 5
+  if nelec == 30:
+    nx = 5  # 2ny-1
     ny = 3
   elif nelec == 56:
-    nx = 7
+    nx = 7  # 2ny-1
     ny = 4
   elif nelec == 80:
-    nx = 8
+    nx = 8  # 2ny-2
     ny = 5
-  elif nelec == 120:
+  elif nelec == 90:
+    nx = 9  # 2ny-1
+    ny = 5
+  elif nelec == 120:  # 11^2
     nx = 10
     ny = 6
+  elif nelec == 168:  # 13^2
+    nx = 12
+    ny = 7
+  elif nelec == 224:  # 15^2
+    nx = 14
+    ny = 8
+  elif nelec == 288:  # 17^2
+    nx = 16
+    ny = 9
+  elif nelec == 360:  # 19^2
+    nx = 18
+    ny = 10
+  elif nelec == 418:
+    nx = 19
+    ny = 11
   nexpect = nx*ny*2
   if nexpect != nelec:
     msg = 'expected %dx%dx2=%d not %d' % (nx, ny, nexpect, nelec)
@@ -79,11 +108,17 @@ def tile_cell(axes0, tmat, edge_tol=1e-8):
   pos = np.dot(fracs[sel], axes0)
   return pos
 
-def simulationcell2d(axes, handler='ewald_strict2d', rckc=30):
+def simulationcell2d(axes, handler='ewald_strict2d', rckc=30, nondiag=False):
   from qharv.inspect import axes_pos
   from qharv.seed import xml, qmcpack_in
   axes1 = np.eye(3)
-  axes1[:2, :2] = axes[:2, :2]
+  if nondiag:
+    axes1[:2, :2] = axes
+  else:
+    axes1[:2, :2] = np.diag(np.diag(axes))
+    if not np.allclose(axes1[:2, :2], axes):
+      msg = 'cell is not diagonal %s' % str(axes)
+      raise RuntimeError(msg)
   rcut = axes_pos.rins(axes1[:2, :2])
   axes1[2, 2] = 2*rcut  # fake Lz
   sc = qmcpack_in.simulationcell_from_axes(axes1)
