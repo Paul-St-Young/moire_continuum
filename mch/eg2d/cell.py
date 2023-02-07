@@ -60,7 +60,13 @@ def sort_pos2d(pos, axes, nx, ny):
   return pos1
 
 def nxny_from_nelec(nelec):
-  if nelec == 30:
+  if nelec == 4:
+    nx = 2
+    ny = 1
+  elif nelec == 12:
+    nx = 3
+    ny = 2
+  elif nelec == 30:
     nx = 5  # 2ny-1
     ny = 3
   elif nelec == 56:
@@ -135,7 +141,7 @@ def random_pos(axes, nelec):
   pos[:, :2] = pos2d
   return pos
 
-def make_sposet(nelecs, twist, spo_type='pw'):
+def make_sposet(nelecs, twist, spo_type='free'):
   from qharv.seed import xml
   spo_name = 'spo-ud'  # !!!! hard-code one SPO set for all species
   spo_map = dict()
