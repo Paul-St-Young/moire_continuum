@@ -44,6 +44,7 @@ def tile_cell(axes0, tmat, edge_tol=1e-8):
   return pos
 
 def magnetic_unit_cell(mag, rs):
+  # ref: tbeg/018-vdmc/d_lda1/workflow/wuinp.py & wginp.py
   # primitive cell
   axes0 = triangular_primive_cell(rs)
   # magnetic unit cell
@@ -67,10 +68,39 @@ def magnetic_unit_cell(mag, rs):
   elem[elem == 'H0'] = 'H'
   return axes, elem, pos
 
+def show_structure(ax, aep, ndim=2):
+  from qharv.inspect import crystal
+  axes, elem, pos = aep
+  crystal.draw_cell(ax, axes[:ndim, :ndim])
+  for e1 in np.unique(elem):
+    sel = elem == e1
+    ax.plot(*pos[sel, :ndim].T, ls='', marker='.')
+
+def tile_magnetic(aep, tmat):
+  from qharv.inspect.axes_elem_pos import ase_tile
+  axes, elem, pos = aep
+  lalias = 'H1' in elem  # magnetic ions
+  if lalias:  # map magnetic ions to difference elements
+    # !!!! HACK
+    elems = ['H', 'H1', 'H2']
+    alias = ['H', 'He', 'Li']
+    elem_alias = dict()
+    alias_elem = dict()
+    for e, name in zip(elems, alias):
+      elem_alias[e] = name
+      alias_elem[name] = e
+    elem = [elem_alias[e] for e in elem]
+  axes, elem, pos = ase_tile(axes, elem, pos, tmat)
+  if lalias:  # map back to magnetic ions
+    elem = [alias_elem[e] for e in elem]
+  elem = np.array(elem)
+  return axes, elem, pos
+
 # ============================ xml input ============================
-def matrix_2d_to_3d(mat2d):
-  mat3d = np.eye(3)
-  mat3d[:2, :2] = mat2d
+def matrix_2d_to_3d(mat2d, mrow=1, mcol=1):
+  nrow, ncol = mat2d.shape
+  mat3d = np.zeros([nrow+mrow, ncol+mcol], dtype=mat2d.dtype)
+  mat3d[:nrow, :ncol] = mat2d
   return mat3d
 
 def make_ase_atoms(axes, pos, elem=None):
