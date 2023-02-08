@@ -31,6 +31,43 @@ def triangular_primive_cell(rs):
   ])
   return axes0
 
+def tile_cell(axes0, tmat, edge_tol=1e-8):
+  from qharv.inspect import axes_pos
+  ndim = len(axes0)
+  nsh = 2*np.diag(tmat).max()
+  fracs = axes_pos.cubic_pos(nsh, ndim=ndim)
+  f1 = np.dot(fracs, np.linalg.inv(tmat))
+  sel = np.ones(len(f1), dtype=bool)
+  for idim in range(ndim):
+    sel = sel & (0-edge_tol <= f1[:, idim]) & (f1[:, idim] < 1-edge_tol)
+  pos = np.dot(fracs[sel], axes0)
+  return pos
+
+def magnetic_unit_cell(mag, rs):
+  # primitive cell
+  axes0 = triangular_primive_cell(rs)
+  # magnetic unit cell
+  if mag == 'para':
+    tmat = np.eye(2)
+    order = np.zeros(1, dtype=int)
+  elif mag == 'ferro':
+    tmat = np.eye(2)
+    order = np.zeros(1, dtype=int)
+  elif mag == 'stripe':
+    tmat = 2*np.eye(2)
+    order = np.array([0, 0, 1, 1], dtype=int)
+  elif mag == '120':
+    tmat = 3*np.eye(2)
+    order = np.array([0, 1, 2, 1, 2, 0, 2, 0, 1], dtype=int)
+  pos = tile_cell(axes0, tmat)
+  axes = np.dot(tmat, axes0)
+  # assign magnetic texture
+  assert len(pos) == len(order)
+  elem = np.array(['H%d' % i for i in order])
+  elem[elem == 'H0'] = 'H'
+  return axes, elem, pos
+
+# ============================ xml input ============================
 def matrix_2d_to_3d(mat2d):
   mat3d = np.eye(3)
   mat3d[:2, :2] = mat2d
@@ -101,18 +138,6 @@ def nxny_from_nelec(nelec):
     msg = 'expected %dx%dx2=%d not %d' % (nx, ny, nexpect, nelec)
     raise RuntimeError(msg)
   return nx, ny
-
-def tile_cell(axes0, tmat, edge_tol=1e-8):
-  from qharv.inspect import axes_pos
-  ndim = len(axes0)
-  nsh = 2*np.diag(tmat).max()
-  fracs = axes_pos.cubic_pos(nsh, ndim=ndim)
-  f1 = np.dot(fracs, np.linalg.inv(tmat))
-  sel = np.ones(len(f1), dtype=bool)
-  for idim in range(ndim):
-    sel = sel & (0-edge_tol <= f1[:, idim]) & (f1[:, idim] < 1-edge_tol)
-  pos = np.dot(fracs[sel], axes0)
-  return pos
 
 def simulationcell2d(axes, handler='ewald_strict2d', rckc=30, nondiag=False):
   from qharv.inspect import axes_pos
