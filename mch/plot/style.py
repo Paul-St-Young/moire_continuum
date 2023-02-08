@@ -7,9 +7,23 @@ def colormap():
   }
   return mag_v2c
 
-def add_legend(ax, mags, **kwargs):
+def add_legend(ax, mags, marker=None, **kwargs):
   from qharv.field import kyrt
   mag_v2c = colormap()
-  styles = [{'color': mag_v2c[mag]} for mag in mags]
-  labels = mags
+  styles = []
+  for mag in mags:
+    myc = mag_v2c[mag]
+    style = {'color': myc}
+    if marker is not None:
+      style['marker'] = marker
+      style['ls'] = ''
+    styles.append(style)
+  label_map = {
+    'para': 'Paramagnet',
+    'ferro': 'Ferromagnet',
+    '120': r'120$^\circ$ Neel',
+    'stripe': 'Stripe',
+  }
+  labels = [label_map[mag] for mag in mags]
+  #labels = mags
   return kyrt.create_legend(ax, styles, labels, **kwargs)
