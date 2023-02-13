@@ -68,6 +68,14 @@ def magnetic_unit_cell(mag, rs):
   elem[elem == 'H0'] = 'H'
   return axes, elem, pos
 
+def nsite_per_magnetic_unit_cell(mag):
+  nsite_map = {'para': 1, 'ferro': 1, 'stripe': 4, '120': 9}
+  if mag not in nsite_map:
+    msg = '%s not in %s' % (mag, str(nsite_map.keys()))
+    raise RuntimeError(msg)
+  nprim = nsite_map[mag]
+  return nprim
+
 def show_structure(ax, aep, ndim=2):
   from qharv.inspect import crystal
   axes, elem, pos = aep
