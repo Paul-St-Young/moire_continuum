@@ -4,6 +4,7 @@ def colormap():
     '120': '#e31a1c',
     'stripe': '#ff7f00',
     'para': '#6a3d9a',
+    'heg': '#4daf4a',
   }
   return mag_v2c
 
@@ -23,6 +24,7 @@ def add_legend(ax, mags, marker=None, **kwargs):
     'ferro': 'Ferromagnet',
     '120': r'120$^\circ$ Neel',
     'stripe': 'Stripe',
+    'heg': '2DEG',
   }
   labels = [label_map[mag] for mag in mags]
   #labels = mags
