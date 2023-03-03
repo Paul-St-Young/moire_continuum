@@ -204,6 +204,10 @@ def random_pos(axes, nelec):
   pos[:, :2] = pos2d
   return pos
 
+def randomize_pos(pos, sigma):
+  npart, ndim = pos.shape
+  return pos + sigma*np.random.randn(*pos.shape)
+
 def make_sposet(nelecs, twist, spo_type='free'):
   from qharv.seed import xml
   spo_name = 'spo-ud'  # !!!! hard-code one SPO set for all species
