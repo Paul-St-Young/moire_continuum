@@ -43,23 +43,27 @@ def tile_cell(axes0, tmat, edge_tol=1e-8):
   pos = np.dot(fracs[sel], axes0)
   return pos
 
-def magnetic_unit_cell(mag, rs):
+def magnetic_unit_cell(mag, rs, n3=False):
   # ref: tbeg/018-vdmc/d_lda1/workflow/wuinp.py & wginp.py
   # primitive cell
   axes0 = triangular_primive_cell(rs)
   # magnetic unit cell
   if mag == 'para':
-    tmat = np.eye(2)
+    tmat = np.eye(2, dtype=int)
     order = np.zeros(1, dtype=int)
   elif mag == 'ferro':
-    tmat = np.eye(2)
+    tmat = np.eye(2, dtype=int)
     order = np.zeros(1, dtype=int)
   elif mag == 'stripe':
-    tmat = 2*np.eye(2)
+    tmat = 2*np.eye(2, dtype=int)
     order = np.array([0, 0, 1, 1], dtype=int)
   elif mag == '120':
-    tmat = 3*np.eye(2)
-    order = np.array([0, 1, 2, 1, 2, 0, 2, 0, 1], dtype=int)
+    if n3:
+      tmat = np.ones(2, dtype=int)+np.eye(2, dtype=int)
+      order = np.array([0, 2, 1])
+    else:
+      tmat = 3*np.eye(2)
+      order = np.array([0, 1, 2, 1, 2, 0, 2, 0, 1], dtype=int)
   pos = tile_cell(axes0, tmat)
   axes = np.dot(tmat, axes0)
   # assign magnetic texture
