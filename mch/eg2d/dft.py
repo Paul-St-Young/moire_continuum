@@ -13,6 +13,8 @@ def default_pwdict(ecut_pre, rs, vm_by_w, pmoire, func):
   degauss = 1e-4  # !!!! fix smearing width
 
   pwdict = dict(
+    control = dict(
+    ),
     system = dict(
       lmoire = True,
       vmoire_in_mev = vm*ha*1e3,
@@ -46,6 +48,10 @@ def default_pwdict(ecut_pre, rs, vm_by_w, pmoire, func):
     pwdict['system']['exx_fraction'] = frac
     pwdict['system']['exxdiv_treatment'] = 'madelung'
     pwdict['system']['x_gamma_extrapolation'] = False
+  elif func == 'ni':  # non-interacting
+    input_dft = 'XC-019L-015L-000I-000I-000I-000I'
+    pwdict['system']['input_dft'] = input_dft
+    pwdict['control']['lob'] = True
   else: 
     msg = 'unknown functional %s' % func
     raise RuntimeError(msg)

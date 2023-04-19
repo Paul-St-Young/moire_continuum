@@ -196,7 +196,6 @@ def simulationcell2d(axes, handler='ewald_strict2d', rckc=30, nondiag=False):
   axes1[2, 2] = 2*rcut  # fake Lz
   sc = qmcpack_in.simulationcell_from_axes(axes1)
   xml.set_param(sc, "LR_handler", handler, new=True)
-  xml.set_param(sc, "ndim", '2', new=True)
   xml.set_param(sc, "bconds", "p p n")
   xml.set_param(sc, "LR_dim_cutoff", str(rckc))
   return sc
