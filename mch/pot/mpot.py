@@ -30,6 +30,8 @@ def pw_init(raxes, ecut):
   return gvecs
 
 def ham_one_body(kvecs, vkcut, vm, phi, lam=1./2):
+  #pshift = np.pi/6  # B site at (1./3, 2./3)
+  pshift = np.pi/6+np.pi/3  # B site at (2./3, 1./3)
   # kinetic
   kmags = np.linalg.norm(kvecs, axis=-1)
   k2 = kmags**2
@@ -43,7 +45,7 @@ def ham_one_body(kvecs, vkcut, vm, phi, lam=1./2):
     # connect kp, k1 separated by g
     dkl = [kp-k1 for kp in kvecs[sel1] if not np.allclose(k1, kp)]
     kx, ky = np.array(dkl).T
-    phis = np.arctan2(ky, kx)+np.pi/6
+    phis = np.arctan2(ky, kx)+pshift
     phase = np.cos(3*phis)
     # set interaction matrix elements
     kmat[ik, idx] = vm*np.exp(1j*phase*phi)
