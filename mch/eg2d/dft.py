@@ -57,3 +57,38 @@ def default_pwdict(ecut_pre, rs, vm_by_w, pmoire, func):
     raise RuntimeError(msg)
   return pwdict
 
+def meta_from_input(finp, ndim=2):
+  from qharv.cross import pwscf
+  from qharv.inspect import axes_pos
+  # CODATA 2018
+  bohr = 0.529177210903
+  ha = 27.211386245988
+  with open(finp, 'r') as f:
+    text = f.read()
+  inps = pwscf.parse_keywords(text)
+  # system
+  unit, axes = pwscf.parse_cell_parameters(text, ndim=ndim)
+  if unit == 'bohr':
+    pass
+  elif unit == 'angstrom':
+    axes /= bohr
+  else:
+    raise RuntimeError(unit)
+  nat = int(inps['nat'])
+  rs = axes_pos.rs(axes, nat)
+  vmoire = float(inps['vmoire_in_mev'])*1e-3/ha
+  mu = -vmoire*rs**2
+  # functional
+  func = inps['input_dft']
+  if '006I' in func:  # hybrid
+    exx = float(inps['exx_fraction'])
+    func = 'exx%.2f' % exx
+  elif '019L' in func:  # lda
+    func = 'lda'
+  meta = dict(
+    rs = np.around(rs, 3),
+    mu = np.around(mu, 3),
+    func = func,
+  )
+  meta.update(inps)
+  return meta
