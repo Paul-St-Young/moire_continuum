@@ -27,3 +27,19 @@ def cta(df, extra_columns=None, extra_ynames=None):
   for yname in ynames:
     columns += ['%s_mean' % yname, '%s_error' % yname]
   return adf.reset_index()[columns]
+
+def read_cta(fh5, metas, prefix):
+  from qharv.reel import config_h5
+  data = config_h5.load_dict(fh5)
+  meta = dict()
+  for key in metas:
+    meta[key] = data[key]
+  yml = []
+  yel = []
+  for key in data.keys():
+    if key.startswith(prefix):
+      if key.endswith('_mean'):
+        yml.append(data[key])
+      if key.endswith('_error'):
+        yel.append(data[key])
+  return meta, yml, yel
