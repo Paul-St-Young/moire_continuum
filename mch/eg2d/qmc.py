@@ -43,3 +43,14 @@ def read_cta(fh5, metas, prefix):
       if key.endswith('_error'):
         yel.append(data[key])
   return meta, yml, yel
+
+def lattice_index_on_fft(mesh, nelec):
+  import numpy as np
+  mx = mesh[0]
+  nx = int(round(nelec**0.5))
+  nskip = int(round(mx/nelec**0.5))
+  idxl = []
+  for icol in range(nx):
+    idxl.append(nskip*mx*icol+np.arange(0, mx, nskip))
+  idx = np.concatenate(idxl)
+  return idx
