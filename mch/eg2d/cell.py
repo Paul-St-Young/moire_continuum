@@ -43,7 +43,7 @@ def tile_cell(axes0, tmat, edge_tol=1e-8):
   pos = np.dot(fracs[sel], axes0)
   return pos
 
-def magnetic_unit_cell(mag, rs, n3=False):
+def magnetic_unit_cell(mag, rs, n3=False, rect=False):
   # ref: tbeg/018-vdmc/d_lda1/workflow/wuinp.py & wginp.py
   # primitive cell
   axes0 = triangular_primive_cell(rs)
@@ -76,6 +76,21 @@ def magnetic_unit_cell(mag, rs, n3=False):
   assert len(pos) == len(order)
   elem = np.array(['H%d' % i for i in order])
   elem[elem == 'H0'] = 'H'
+  if (mag == '120') and n3 and rect:
+    # rotate
+    theta = -30./180*np.pi
+    rmat = np.array([
+      [np.cos(theta), -np.sin(theta)],
+      [np.sin(theta), np.cos(theta)],
+    ])
+    fracs = np.dot(pos, np.linalg.inv(axes))
+    axes = np.dot(rmat, axes.T).T
+    pos = np.dot(fracs, axes)
+    # exchange x, y
+    x, y = axes.T
+    axes = np.c_[y, x]
+    x, y = pos.T
+    pos = np.c_[y, x]
   return axes, elem, pos
 
 def nsite_per_magnetic_unit_cell(mag):
