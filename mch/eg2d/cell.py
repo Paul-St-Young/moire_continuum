@@ -104,9 +104,7 @@ def get_magnetic_tilematrix(mag, nelec, ndim=2, n3=False, rect=False):
       ntile = nelec/3
   ntile = int(round(ntile))
   if rect:
-    print(mag, ntile)
     nx, ny = nxny_from_nelec(ntile)
-    print(nx, ny)
     tmat = np.array([
       [nx, 0],
       [ny, 2*ny],
@@ -191,7 +189,9 @@ def sort_pos2d(pos, axes, nx, ny):
   return pos1
 
 def nxny_from_nelec(nelec):
-  if nelec == 4:
+  if nelec == 2:
+    nx = ny = 1
+  elif nelec == 4:
     nx = 2
     ny = 1
   elif nelec == 12:
