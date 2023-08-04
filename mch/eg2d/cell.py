@@ -76,21 +76,6 @@ def magnetic_unit_cell(mag, rs, n3=False, rect=False):
   assert len(pos) == len(order)
   elem = np.array(['H%d' % i for i in order])
   elem[elem == 'H0'] = 'H'
-  if (mag == '120') and n3 and rect:
-    # rotate
-    theta = -30./180*np.pi
-    rmat = np.array([
-      [np.cos(theta), -np.sin(theta)],
-      [np.sin(theta), np.cos(theta)],
-    ])
-    fracs = np.dot(pos, np.linalg.inv(axes))
-    axes = np.dot(rmat, axes.T).T
-    pos = np.dot(fracs, axes)
-    # exchange x, y
-    x, y = axes.T
-    axes = np.c_[y, x]
-    x, y = pos.T
-    pos = np.c_[y, x]
   return axes, elem, pos
 
 def get_magnetic_tilematrix(mag, nelec, ndim=2, n3=False, rect=False):
@@ -111,7 +96,10 @@ def get_magnetic_tilematrix(mag, nelec, ndim=2, n3=False, rect=False):
     ], dtype=int)
     if mag == '120':
       assert n3
-      tmat[1, 0] *= -1
+      tmat = np.array([
+        [2*ny, -ny],
+        [0, nx],
+      ], dtype=int)
   else:
     nx = int(round(ntile**0.5))
     tmat = nx*np.eye(ndim, dtype=int)
