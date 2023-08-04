@@ -198,6 +198,9 @@ def nxny_from_nelec(nelec):
   elif nelec == 30:
     nx = 5  # 2ny-1
     ny = 3
+  elif nelec == 48:
+    nx = 6
+    ny = 4
   elif nelec == 56:
     nx = 7  # 2ny-1
     ny = 4
