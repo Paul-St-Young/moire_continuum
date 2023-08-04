@@ -93,6 +93,37 @@ def magnetic_unit_cell(mag, rs, n3=False, rect=False):
     pos = np.c_[y, x]
   return axes, elem, pos
 
+def get_magnetic_tilematrix(mag, nelec, ndim=2, n3=False, rect=False):
+  if mag in ['para', 'ferro']:
+    ntile = nelec
+  elif mag.startswith('stripe'):
+    ntile = nelec/4
+  elif mag == '120':
+    ntile = nelec/9
+    if n3:
+      ntile = nelec/3
+  ntile = int(round(ntile))
+  if rect:
+    print(mag, ntile)
+    nx, ny = nxny_from_nelec(ntile)
+    print(nx, ny)
+    tmat = np.array([
+      [nx, 0],
+      [ny, 2*ny],
+    ], dtype=int)
+    if mag == '120':
+      assert n3
+      tmat[1, 0] *= -1
+  else:
+    nx = int(round(ntile**0.5))
+    tmat = nx*np.eye(ndim, dtype=int)
+  # check tmat
+  nvol = np.linalg.det(tmat)
+  if not np.isclose(ntile, nvol):
+    msg = 'wrong tile matrix volume increase %.2f != %.2f' % (nvol, ntile)
+    raise RuntimeError(msg)
+  return tmat
+
 def nsite_per_magnetic_unit_cell(mag):
   nsite_map = {'para': 1, 'ferro': 1, 'stripe': 4, '120': 9}
   if mag not in nsite_map:
@@ -166,6 +197,9 @@ def nxny_from_nelec(nelec):
   elif nelec == 12:
     nx = 3
     ny = 2
+  elif nelec == 16:
+    nx = 4
+    ny = 2
   elif nelec == 30:
     nx = 5  # 2ny-1
     ny = 3
@@ -196,6 +230,8 @@ def nxny_from_nelec(nelec):
   elif nelec == 418:
     nx = 19
     ny = 11
+  else:
+    raise NotImplementedError(nelec)
   nexpect = nx*ny*2
   if nexpect != nelec:
     msg = 'expected %dx%dx2=%d not %d' % (nx, ny, nexpect, nelec)
