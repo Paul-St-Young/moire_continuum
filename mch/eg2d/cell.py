@@ -57,6 +57,12 @@ def magnetic_unit_cell(mag, rs, n3=False):
   elif mag == 'stripe':
     tmat = 2*np.eye(2, dtype=int)
     order = np.array([0, 0, 1, 1], dtype=int)
+  elif mag == 'stripe0':
+    tmat = 2*np.eye(2, dtype=int)
+    order = np.array([0, 1, 0, 1], dtype=int)
+  elif mag == 'stripe60':
+    tmat = 2*np.eye(2, dtype=int)
+    order = np.array([0, 1, 1, 0], dtype=int)
   elif mag == '120':
     if n3:
       tmat = np.ones(2, dtype=int)+np.eye(2, dtype=int)
