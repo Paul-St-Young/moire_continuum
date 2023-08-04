@@ -78,16 +78,23 @@ def magnetic_unit_cell(mag, rs, n3=False, rect=False):
   elem[elem == 'H0'] = 'H'
   return axes, elem, pos
 
-def get_magnetic_tilematrix(mag, nelec, ndim=2, n3=False, rect=False):
+def get_nprim(mag, n3=False):
   if mag in ['para', 'ferro']:
-    ntile = nelec
+    nprim = 1
   elif mag.startswith('stripe'):
-    ntile = nelec/4
+    nprim = 4
   elif mag == '120':
-    ntile = nelec/9
+    nprim = 9
     if n3:
-      ntile = nelec/3
-  ntile = int(round(ntile))
+      nprim = 3
+  else:
+    raise RuntimeError(mag)
+  return nprim
+
+def get_magnetic_tilematrix(mag, nelec, ndim=2, n3=False, rect=False):
+  nprim = get_nprim(mag, n3=n3)
+  ntile = nelec//nprim
+  assert nprim*ntile == nelec
   if rect:
     nx, ny = nxny_from_nelec(ntile)
     tmat = np.array([
@@ -200,12 +207,18 @@ def nxny_from_nelec(nelec):
   elif nelec == 90:
     nx = 9  # 2ny-1
     ny = 5
+  elif nelec == 144:
+    nx = 12
+    ny = 6
   elif nelec == 120:  # 11^2
     nx = 10
     ny = 6
   elif nelec == 168:  # 13^2
     nx = 12
     ny = 7
+  elif nelec == 192:
+    nx = 12
+    ny = 8
   elif nelec == 224:  # 15^2
     nx = 14
     ny = 8
@@ -218,6 +231,18 @@ def nxny_from_nelec(nelec):
   elif nelec == 418:
     nx = 19
     ny = 11
+  elif nelec == 576:
+    nx = 24
+    ny = 12
+  elif nelec == 720:
+    nx = 24
+    ny = 15
+  elif nelec == 960:
+    nx = 30
+    ny = 16
+  elif nelec == 2880:
+    nx = 48
+    ny = 30
   else:
     raise NotImplementedError(nelec)
   nexpect = nx*ny*2
