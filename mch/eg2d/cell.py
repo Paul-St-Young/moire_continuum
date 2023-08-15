@@ -43,11 +43,17 @@ def tile_cell(axes0, tmat, edge_tol=1e-8):
   pos = np.dot(fracs[sel], axes0)
   return pos
 
-def magnetic_unit_cell(mag, rs, n3=False, rect=False):
+def magnetic_unit_cell(mag, rs, n3=False, rect=False, n2=False):
   # ref: tbeg/018-vdmc/d_lda1/workflow/wuinp.py & wginp.py
   # primitive cell
   axes0 = triangular_primive_cell(rs)
   # magnetic unit cell
+  if n2 and (mag != 'stripe0'):
+    msg = 'n2 applies to stripe0 only'
+    raise RuntimeError(msg)
+  if n2 and (not rect):
+    msg = 'n2 requires rectangular cell'
+    raise RuntimeError(msg)
   if mag == 'para':
     tmat = np.eye(2, dtype=int)
     order = np.zeros(1, dtype=int)
@@ -60,6 +66,9 @@ def magnetic_unit_cell(mag, rs, n3=False, rect=False):
   elif mag == 'stripe0':
     tmat = 2*np.eye(2, dtype=int)
     order = np.array([0, 1, 0, 1], dtype=int)
+    if n2:
+      tmat = np.array([[1, 0], [1, 2]], dtype=int)
+      order = np.array([0, 1], dtype=int)
   elif mag == 'stripe60':
     tmat = 2*np.eye(2, dtype=int)
     order = np.array([0, 1, 1, 0], dtype=int)
@@ -78,11 +87,13 @@ def magnetic_unit_cell(mag, rs, n3=False, rect=False):
   elem[elem == 'H0'] = 'H'
   return axes, elem, pos
 
-def get_nprim(mag, n3=False):
+def get_nprim(mag, n3=False, n2=False):
   if mag in ['para', 'ferro']:
     nprim = 1
   elif mag.startswith('stripe'):
     nprim = 4
+    if n2:
+      nprim = 2
   elif mag == '120':
     nprim = 9
     if n3:
@@ -91,16 +102,19 @@ def get_nprim(mag, n3=False):
     raise RuntimeError(mag)
   return nprim
 
-def get_magnetic_tilematrix(mag, nelec, ndim=2, n3=False, rect=False):
-  nprim = get_nprim(mag, n3=n3)
+def get_magnetic_tilematrix(mag, nelec, ndim=2, n3=False, rect=False, n2=False):
+  nprim = get_nprim(mag, n3=n3, n2=n2)
   ntile = nelec//nprim
   assert nprim*ntile == nelec
   if rect:
-    nx, ny = nxny_from_nelec(ntile)
-    tmat = np.array([
-      [nx, 0],
-      [ny, 2*ny],
-    ], dtype=int)
+    if n2:
+      tmat = np.eye(2, dtype=int)
+    else:
+      nx, ny = nxny_from_nelec(ntile)
+      tmat = np.array([
+        [nx, 0],
+        [ny, 2*ny],
+      ], dtype=int)
     if mag == '120':
       assert n3
       tmat = np.array([
