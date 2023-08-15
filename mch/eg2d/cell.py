@@ -240,11 +240,17 @@ def nxny_from_nelec(nelec):
   elif nelec == 720:
     nx = 24
     ny = 15
+  elif nelec == 750:
+    nx = 25
+    ny = 15
   elif nelec == 960:
     nx = 30
     ny = 16
   elif nelec == 2880:
     nx = 48
+    ny = 30
+  elif nelec == 3000:
+    nx = 50
     ny = 30
   else:
     raise NotImplementedError(nelec)
