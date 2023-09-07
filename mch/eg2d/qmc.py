@@ -12,10 +12,11 @@ def add_dmc_columns(dfd, ymult=1):
     dfd['um_mean'] = dfd['moire_mean']/dfd['nelec']*ymult
     dfd['um_error'] = dfd['moire_error']/dfd['nelec']*ymult
 
-def cta(df, extra_columns=None, extra_ynames=None):
+def cta(df, columns=None, extra_columns=None, extra_ynames=None):
   from qharv.sieve import mean_df
   #print(mean_df.categorize_columns(df, nosuf=True))
-  columns = ['mag', 'rs', 'mu', 'nelec', 'dn', 'func']
+  if columns is None:
+    columns = ['mag', 'rs', 'mu', 'nelec', 'dn', 'func']
   if extra_columns is not None:
     columns += extra_columns
   ynames = ['etot', 'var', 'ke', 'vee']
