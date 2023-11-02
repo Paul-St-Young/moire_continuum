@@ -57,6 +57,47 @@ def default_pwdict(ecut_pre, rs, vm_by_w, pmoire, func):
     raise RuntimeError(msg)
   return pwdict
 
+def qe_seed_input():
+  text = '''&control
+  verbosity = 'high'
+  outdir = 'qeout'
+  disk_io = 'low'
+  pseudo_dir = '.'
+/
+&system
+  nosym = .true.
+  noinv = .true.
+  ibrav = 0
+/
+&electrons
+  electron_maxstep = 1000
+/
+'''
+  return text
+
+def qe_input(aep, pwdict):
+  from qharv.cross import pwscf
+  from mch.eg2d.cell import extend_axes_pos
+  axes, elem, pos = aep
+  axes, pos = extend_axes_pos(axes, pos)
+  species = np.unique(elem)
+  text = qe_seed_input()
+  # set keywords
+  for group, params in pwdict.items():
+    for key, val in params.items():
+      text = pwscf.change_keyword(text, group, key, val)
+  # add atomic species
+  text += '\n\nATOMIC_SPECIES\n'
+  for e1 in species:
+    text += '%3s 1.0 H.upf\n' % e1
+  # add atoms
+  fracs = np.dot(pos, np.linalg.inv(axes))
+  elem_pos = dict(elements=elem, positions=fracs)
+  text += pwscf.atomic_positions(elem_pos)
+  # add cell
+  text += pwscf.cell_parameters(axes)
+  return text
+
 def meta_from_input(finp, ndim=2):
   from qharv.cross import pwscf
   from qharv.inspect import axes_pos
