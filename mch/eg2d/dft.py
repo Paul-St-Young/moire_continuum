@@ -10,7 +10,6 @@ def default_pwdict(ecut_pre, rs, vm_by_w, pmoire, func):
   am = rs*(2*np.pi/3**0.5)**0.5
 
   ecut = ecut_pre/rs**2  # !!!! fix FFT grid size
-  degauss = 1e-4  # !!!! fix smearing width
 
   pwdict = dict(
     control = dict(
@@ -24,10 +23,11 @@ def default_pwdict(ecut_pre, rs, vm_by_w, pmoire, func):
       nosym = True,
       ecutwfc = ecut, 
       occupations = 'smearing',
-      degauss = degauss,
+      degauss = 1e-4/rs,
     ),
     electrons = dict( 
       diagonalization = 'cg',
+      conv_thr = 3e-7/rs,
     ),
   )
   
