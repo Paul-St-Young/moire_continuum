@@ -150,6 +150,11 @@ def show_structure(ax, aep, ndim=2):
 def tile_magnetic(aep, tmat):
   from qharv.inspect.axes_elem_pos import ase_tile
   axes, elem, pos = aep
+  ndim = len(axes)
+  if ndim == 2:
+    axes, pos = extend_axes_pos(axes, pos)
+    tmat = matrix_2d_to_3d(tmat)
+    tmat[ndim, ndim] = 1
   lalias = 'H1' in elem  # magnetic ions
   if lalias:  # map magnetic ions to difference elements
     # !!!! HACK
@@ -162,6 +167,9 @@ def tile_magnetic(aep, tmat):
       alias_elem[name] = e
     elem = [elem_alias[e] for e in elem]
   axes, elem, pos = ase_tile(axes, elem, pos, tmat)
+  if ndim == 2:
+    axes = axes[:ndim, :ndim]
+    pos = pos[:, :ndim]
   if lalias:  # map back to magnetic ions
     elem = [alias_elem[e] for e in elem]
   elem = np.array(elem)
@@ -173,6 +181,20 @@ def matrix_2d_to_3d(mat2d, mrow=1, mcol=1):
   mat3d = np.zeros([nrow+mrow, ncol+mcol], dtype=mat2d.dtype)
   mat3d[:nrow, :ncol] = mat2d
   return mat3d
+
+def extend_axes_pos(axes, pos):
+  from qharv.inspect.axes_pos import rwsc
+  ndim = len(axes)
+  if ndim == 3:
+    return axes, pos
+  elif ndim != 2:
+    msg = 'ndim = %d' % ndim
+    raise RuntimeError(msg)
+  alatz = rwsc(axes)
+  axes = matrix_2d_to_3d(axes)
+  axes[ndim, ndim] = 2*alatz
+  pos = matrix_2d_to_3d(pos, mrow=0)
+  return axes, pos
 
 def make_ase_atoms(axes, pos, elem=None):
   from ase import Atoms
