@@ -43,7 +43,7 @@ def tile_cell(axes0, tmat, edge_tol=1e-8):
   pos = np.dot(fracs[sel], axes0)
   return pos
 
-def magnetic_unit_cell(mag, rs, n3=False, rect=False, n2=False):
+def magnetic_unit_cell(mag, rs, n3=False, rect=False, n2=False, v2=False):
   # ref: tbeg/018-vdmc/d_lda1/workflow/wuinp.py & wginp.py
   # primitive cell
   axes0 = triangular_primive_cell(rs)
@@ -80,6 +80,14 @@ def magnetic_unit_cell(mag, rs, n3=False, rect=False, n2=False):
       tmat = 3*np.eye(2)
       order = np.array([0, 1, 2, 1, 2, 0, 2, 0, 1], dtype=int)
   pos = tile_cell(axes0, tmat)
+  if v2:
+    p1 = np.dot([1./3, 2./3], axes0) + pos
+    pos = np.concatenate([pos, p1], axis=0)
+    if 'stripe' in mag:
+      order[:] = 0
+      order = np.concatenate([order, 1-order])
+    else:
+      order = np.concatenate([order, order])
   axes = np.dot(tmat, axes0)
   # assign magnetic texture
   assert len(pos) == len(order)
