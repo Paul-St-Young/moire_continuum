@@ -86,6 +86,8 @@ def qe_input(aep, pwdict):
   for group, params in pwdict.items():
     for key, val in params.items():
       text = pwscf.change_keyword(text, group, key, val)
+  text = pwscf.change_keyword(text, 'system', 'ntyp', len(species))
+  text = pwscf.change_keyword(text, 'system', 'nat', len(pos))
   # add atomic species
   text += '\n\nATOMIC_SPECIES\n'
   for e1 in species:
