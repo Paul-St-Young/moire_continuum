@@ -20,14 +20,14 @@ def add_legend(ax, mags, marker=None, alpha=None, **kwargs):
       style['ls'] = ''
     if alpha is not None:
       style['alpha'] = alpha
-    if mag == 'para':  # !!!! HACK
-      style['ls'] = ''
-      style['marker'] = 'o'
-      style['mew'] = 3
-      style['fillstyle'] = 'none'
-    else:
-      style['ls'] = ''
-      style['marker'] = 's'
+    #if mag == 'para':  # !!!! HACK
+    #  style['ls'] = ''
+    #  style['marker'] = 'o'
+    #  style['mew'] = 3
+    #  style['fillstyle'] = 'none'
+    #else:
+    #  style['ls'] = ''
+    #  style['marker'] = 's'
     styles.append(style)
   label_map = {
     'para': 'Paramagnet',
