@@ -79,6 +79,9 @@ def magnetic_unit_cell(mag, rs, n3=False, rect=False, n2=False, v2=False):
     else:
       tmat = 3*np.eye(2)
       order = np.array([0, 1, 2, 1, 2, 0, 2, 0, 1], dtype=int)
+  else:
+     msg = 'mag = %s' % mag  + 'n3 = %s' % n3 + '; rect = %s' % rect+ ';n2 = %d' % n2 + ';v2 = %d' % v2
+     raise RuntimeError(msg)
   pos = tile_cell(axes0, tmat)
   if v2:
     p1 = np.dot([1./3, 2./3], axes0) + pos
