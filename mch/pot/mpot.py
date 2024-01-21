@@ -10,12 +10,12 @@ def mpot(rvecs, am, phi, vm):
   #  [1, 0],
   #  [-1, 1],
   #  [0, -1],
-  #])  # B site at (1./3, 2./3)
+  #])  # B site at (2./3, 1./3)
   gfracs = np.array([
     [0, 1],
     [-1, 0],
     [1, -1],
-  ])  # B site at (2./3, 1./3)
+  ])  # B site at (1./3, 2./3)
   gvecs = np.dot(gfracs, raxes)
   rg = np.einsum('id,jd->ij', rvecs, gvecs)
   val = vm*2*np.cos(rg+phi).sum(axis=-1)
