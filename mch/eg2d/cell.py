@@ -22,6 +22,24 @@ def square_cell(rs, nelec, ndim=2):
   axes = alat*np.eye(ndim)
   return axes
 
+def rectangular_cell(rs, nelec, ndim=2):
+  assert ndim == 2
+  am = (2*np.pi/3**0.5)**0.5*rs
+  axes0 = am*np.array([
+    [1, 0],
+    [-0.5, 3**0.5/2],
+  ])
+  nx, ny = nxny_from_nelec(nelec)
+  tmat = np.array([
+    [nx, 0],
+    [ny, 2*ny],
+  ], dtype=int)
+  axes = np.dot(tmat, axes0)
+  adiag = np.diag(axes)
+  assert np.allclose(np.diag(adiag), axes)
+  axes = np.diag(adiag)
+  return axes
+
 def triangular_primive_cell(rs):
   vol = volume_per_particle(rs, ndim=2)
   alat = ((2./3**0.5)*vol)**0.5
