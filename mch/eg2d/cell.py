@@ -137,7 +137,8 @@ def get_magnetic_tilematrix(mag, nelec, ndim=2, n3=False, rect=False, n2=False):
   assert nprim*ntile == nelec
   if rect:
     if n2:
-      tmat = np.eye(2, dtype=int)
+      nx, ny = nxny_from_nelec(2*ntile)
+      tmat = np.diag([nx, ny])
     else:
       nx, ny = nxny_from_nelec(ntile)
       tmat = np.array([
