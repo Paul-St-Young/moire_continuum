@@ -61,10 +61,16 @@ def tile_cell(axes0, tmat, edge_tol=1e-8):
   pos = np.dot(fracs[sel], axes0)
   return pos
 
-def magnetic_unit_cell(mag, rs, n3=False, rect=False, n2=False, v2=False):
+def magnetic_unit_cell(mag, rs, rect=False,
+  n2=False, n3=False, v2=False, v3=False):
   # ref: tbeg/018-vdmc/d_lda1/workflow/wuinp.py & wginp.py
   # primitive cell
-  axes0 = triangular_primive_cell(rs)
+  vmult = 1
+  if v2:
+    vmult = 2**0.5
+  if v3:
+    vmult = 3**0.5
+  axes0 = vmult*triangular_primive_cell(rs)
   # magnetic unit cell
   if n2 and (mag != 'stripe0'):
     msg = 'n2 applies to stripe0 only'
@@ -109,6 +115,15 @@ def magnetic_unit_cell(mag, rs, n3=False, rect=False, n2=False, v2=False):
       order = np.concatenate([order, 1-order])
     else:
       order = np.concatenate([order, order])
+  if v3:
+    p1 = np.dot([1./3, 2./3], axes0) + pos
+    p2 = np.dot([2./3, 1./3], axes0) + pos
+    pos = np.concatenate([pos, p1, p2], axis=0)
+    if 'stripe' in mag:
+      msg = '%s v3' % mag
+      raise NotImplementedError(msg)
+    else:
+      order = np.concatenate([order, order, order])
   axes = np.dot(tmat, axes0)
   # assign magnetic texture
   assert len(pos) == len(order)
@@ -131,7 +146,8 @@ def get_nprim(mag, n3=False, n2=False):
     raise RuntimeError(mag)
   return nprim
 
-def get_magnetic_tilematrix(mag, nelec, ndim=2, n3=False, rect=False, n2=False):
+def get_magnetic_tilematrix(mag, nelec, rect=False, n2=False, n3=False):
+  ndim = 2  # !!!! hard-code 2D
   nprim = get_nprim(mag, n3=n3, n2=n2)
   ntile = nelec//nprim
   assert nprim*ntile == nelec

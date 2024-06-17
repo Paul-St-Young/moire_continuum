@@ -1,13 +1,13 @@
 import numpy as np
 
-def default_pwdict(ecut_pre, rs, vm_by_w, pmoire, func):
+def default_pwdict(ecut_pre, rs, vm_by_w, pmoire, func, vfill=1):
   # CODATA 2018
   bohr = 0.529177210903
   ha = 27.211386245988
   # vmoire in effective ha
   vm = -vm_by_w/rs**2
   # amoire in effective bohr
-  am = rs*(2*np.pi/3**0.5)**0.5
+  am = rs*(2*np.pi/3**0.5)**0.5 * vfill**0.5
 
   ecut = ecut_pre/rs**2  # !!!! fix FFT grid size
 
