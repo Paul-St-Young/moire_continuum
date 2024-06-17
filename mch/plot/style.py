@@ -1,11 +1,20 @@
-def colormap():
-  mag_v2c = {
-    'ferro': '#1f78b4',
-    '120': '#e31a1c',
-    'stripe': '#ff7f00',
-    'para': '#6a3d9a',
-    'heg': '#4daf4a',
-  }
+def colormap(name='allan'):
+  if name == 'allan':
+    mag_v2c = {
+      'ferro': '#1f78b4',
+      '120': '#e31a1c',
+      'stripe': '#ff7f00',
+      'para': '#6a3d9a',
+      'heg': '#4daf4a',
+    }
+  elif name == 'lucy':
+    mag_v2c = {
+      'para': '#f9ae16ff',
+      'ferro': '#74c7beff',
+      'fmetal': '#b38abcff',
+      'stripe': '#ff7f00',
+    }
+  mag_v2c['stripe0'] = mag_v2c['stripe']
   return mag_v2c
 
 def add_legend(ax, mags, marker=None, alpha=None, **kwargs):
@@ -36,6 +45,7 @@ def add_legend(ax, mags, marker=None, alpha=None, **kwargs):
     'stripe': 'Stripe',
     'heg': '2DEG',
   }
+  label_map['stripe0'] = label_map['stripe']
   labels = [label_map[mag] for mag in mags]
   #labels = mags
   return kyrt.create_legend(ax, styles, labels, **kwargs)
