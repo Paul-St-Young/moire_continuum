@@ -1,11 +1,14 @@
 import numpy as np
 
-def mpot(rvecs, am, phi, vm):
+def recvec_moire(am):
   bm = 4*np.pi/3**0.5/am
   raxes = bm*np.array([
     [3**0.5/2, 0.5],
     [0, 1],
   ])
+  return raxes
+
+def mpot(rvecs, am, phi, vm):
   #gfracs = np.array([
   #  [1, 0],
   #  [-1, 1],
@@ -16,7 +19,7 @@ def mpot(rvecs, am, phi, vm):
     [-1, 0],
     [1, -1],
   ])  # B site at (1./3, 2./3)
-  gvecs = np.dot(gfracs, raxes)
+  gvecs = np.dot(gfracs, recvec_moire(am))
   rg = np.einsum('id,jd->ij', rvecs, gvecs)
   val = vm*2*np.cos(rg+phi).sum(axis=-1)
   return val
@@ -50,3 +53,14 @@ def ham_one_body(kvecs, vkcut, vm, phi, lam=1./2):
     # set interaction matrix elements
     kmat[ik, idx] = vm*np.exp(1j*phase*phi)
   return kmat
+
+def tpot(rvecs, am, wm):
+  qfracs = np.array([
+    [2./3, -1./3],
+    [-1./3, 2./3],
+    [-1./3, -1./3],
+  ])
+  qvecs = np.dot(qfracs, recvec_moire(am))
+  rq = np.tensordot(rvecs, qvecs, (-1, -1))
+  vals = wm*np.exp(1j*rq).sum(axis=-1)
+  return vals
