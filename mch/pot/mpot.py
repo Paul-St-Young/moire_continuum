@@ -8,7 +8,23 @@ def recvec_moire(am):
   ])
   return raxes
 
+def moire_shells():
+  shells = {}
+  shells[0] = np.array([
+    [0, 1],
+    [1, -1],
+    [-1, 0],
+  ])
+  shells[1] = np.array([
+    [1, 1],
+    [1, -2],
+    [-2, 1],
+  ])
+  shells[2] = shells[0]*2
+  return shells
+
 def mpot(rvecs, am, phi, vm):
+  # !!!! deprecated by vpot and tpot
   #gfracs = np.array([
   #  [1, 0],
   #  [-1, 1],
@@ -63,4 +79,15 @@ def tpot(rvecs, am, wm):
   qvecs = np.dot(qfracs, recvec_moire(am))
   rq = np.tensordot(rvecs, qvecs, (-1, -1))
   vals = wm*np.exp(1j*rq).sum(axis=-1)
+  return vals
+
+def vpot(rvecs, am, phi, vml):
+  recvec = recvec_moire(am)
+  shells = moire_shells()
+  vals = np.zeros(len(rvecs))
+  for i, vm in enumerate(vml):
+    gfracs = shells[i]
+    gvecs = np.dot(gfracs, recvec)
+    r_dot_g = np.tensordot(rvecs, gvecs, (-1, -1))
+    vals += vm*2*np.cos(r_dot_g+phi).sum(axis=-1)
   return vals
