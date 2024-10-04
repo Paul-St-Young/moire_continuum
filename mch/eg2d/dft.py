@@ -135,3 +135,44 @@ def meta_from_input(finp, ndim=2):
   )
   meta.update(inps)
   return meta
+
+def change_rs(text, rs1):
+  from qharv.inspect import axes_pos
+  from qharv.cross import pwscf
+  inps1 = {}
+  inps0 = pwscf.parse_keywords(text)
+
+  cell_unit, cell0 = pwscf.parse_cell_parameters(text, ndim=3)
+
+  bohr = 0.529177210544
+  nelec = int(inps0['nat'])
+  cell_in_bohr = cell0/bohr if cell_unit.lower() == 'angstrom' else cell0
+  rs0 = axes_pos.rs(cell_in_bohr[:2, :2], nelec)
+
+  ratio = rs1/rs0
+
+  # rescale lengths
+  am0 = float(inps0['amoire_in_ang'])
+  am1 = am0 * ratio
+  inps1['amoire_in_ang'] = am1
+
+  cell1 = cell0 * ratio
+  cell_text = pwscf.cell_parameters(cell1, unit=cell_unit)
+  text1 = pwscf.change_block(text, 'CELL_PARAMETERS', cell_text)
+
+  # reset convergence parameters
+  ecut0 = float(inps0['ecutwfc'])
+  epre = ecut0*rs0**2
+  ecut1 = epre/rs1**2
+  inps1['ecutwfc'] = ecut1
+
+  inps1['degauss'] = 1e-4/rs1
+  inps1['conv_thr'] = 3e-7/rs1
+
+  text1 = pwscf.set_keywords(text1, inps1)
+  return text1
+
+def units(mstar, eps):
+  length = mstar/eps
+  energy = eps*eps/mstar
+  return length, energy
