@@ -1,4 +1,5 @@
 import numpy as np
+from qharv.cross import pwscf, pwscf_xml
 
 def default_pwdict(ecut_pre, rs, vm_by_w, pmoire, func, vfill=1):
   # CODATA 2018
@@ -76,7 +77,6 @@ def qe_seed_input():
   return text
 
 def qe_input(aep, pwdict):
-  from qharv.cross import pwscf
   from mch.eg2d.cell import extend_axes_pos
   axes, elem, pos = aep
   axes, pos = extend_axes_pos(axes, pos)
@@ -101,7 +101,6 @@ def qe_input(aep, pwdict):
   return text
 
 def meta_from_input(finp, ndim=2):
-  from qharv.cross import pwscf
   from qharv.inspect import axes_pos
   # CODATA 2018
   bohr = 0.529177210903
@@ -138,7 +137,6 @@ def meta_from_input(finp, ndim=2):
 
 def change_rs(text, rs1):
   from qharv.inspect import axes_pos
-  from qharv.cross import pwscf
   inps1 = {}
   inps0 = pwscf.parse_keywords(text)
 
@@ -176,3 +174,47 @@ def units(mstar, eps):
   length = mstar/eps
   energy = eps*eps/mstar
   return length, energy
+
+def vbm_cbm(efermi, bands):
+  # valence max
+  vsel = bands <= efermi
+  # valence max
+  vbm = [band[sel].max() if sel.sum()>0 else np.nan
+    for band, sel in zip(bands, vsel)]
+  # conduction min
+  cbm = [band[sel].min() if sel.sum()>0 else np.nan
+    for band, sel in zip(bands, ~vsel)]
+  return np.array(vbm), np.array(cbm)
+
+def calc_gap(vbm, cbm):
+  vmax = max(vbm)
+  cmin = min(cbm)
+  gap = cmin - vmax
+  direct_gap = max(cbm-vbm)
+  ret = dict(
+    vmax = vmax,
+    cmin = cmin,
+    direct_gap = direct_gap,
+    gap = gap,
+  )
+  return ret
+
+def get_vc(fxml):
+  doc = pwscf_xml.read(fxml)
+  # Fermi energy
+  efs = pwscf_xml.read_efermi(doc)
+  bds = pwscf_xml.read_bands(doc)
+  rets = []
+  if len(efs) == 1:
+    efermi = efs[0]
+    bands = bds
+    vbm, cbm = vbm_cbm(efermi, bands)
+    ret = calc_gap(vbm, cbm)
+    rets.append(ret)
+  else:
+    for ispin, efermi in enumerate(efs):
+      bands = bds[:, ispin]
+      vbm, cbm = vbm_cbm(efermi, bands)
+      ret = calc_gap(vbm, cbm)
+      rets.append(ret)
+  return rets
