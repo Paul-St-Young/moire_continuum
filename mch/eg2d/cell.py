@@ -49,6 +49,28 @@ def triangular_primive_cell(rs):
   ])
   return axes0
 
+def triangular_unit_cell(rs, rect=False):
+  vol = volume_per_particle(rs, ndim=2)
+  alat = ((2./3**0.5)*vol)**0.5
+  cell0 = alat*np.array([
+    [1, 0],
+    [-1./2, 3**0.5/2],
+  ])
+  if rect:
+    tmat = np.array([[1, 0], [1, 2]])
+    cell1 = tmat @ cell0
+    fracs = np.array([[0, 0], [1./2, 1./2]])
+  else:
+    cell1 = cell0
+    fracs = np.array([[0, 0]])
+  return cell1, fracs
+
+def gen_elems(spins):
+  elems = []
+  for i, ns in enumerate(spins):
+    elems += ['H%d' % i for n1 in range(ns)]
+  return elems
+
 def tile_cell(axes0, tmat, edge_tol=1e-8):
   from qharv.inspect import axes_pos
   ndim = len(axes0)

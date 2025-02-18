@@ -135,7 +135,7 @@ def meta_from_input(finp, ndim=2):
   meta.update(inps)
   return meta
 
-def change_rs(text, rs1):
+def change_rs(text, rs1, scale_energy=True):
   from qharv.inspect import axes_pos
   inps1 = {}
   inps0 = pwscf.parse_keywords(text)
@@ -153,13 +153,13 @@ def change_rs(text, rs1):
   am0 = float(inps0['amoire_in_ang'])
   am1 = am0 * ratio
   inps1['amoire_in_ang'] = am1
-  # rescale energies by bandwidth
-  enames = ['vmoire_in_mev', 'wmoire_in_mev']
-  for ename in enames:
-    if ename in inps0:
-      val0 = float(inps0[ename])
-      val1 = val0/ratio**2
-      inps1[ename] = val1
+  if scale_energy:  # rescale energies by bandwidth
+    enames = ['vmoire_in_mev', 'wmoire_in_mev']
+    for ename in enames:
+      if ename in inps0:
+        val0 = float(inps0[ename])
+        val1 = val0/ratio**2
+        inps1[ename] = val1
 
   cell1 = cell0 * ratio
   cell_text = pwscf.cell_parameters(cell1, unit=cell_unit)
