@@ -76,7 +76,7 @@ def qe_seed_input():
 '''
   return text
 
-def qe_input(aep, pwdict):
+def qe_input(aep, pwdict, unit='bohr'):
   from mch.eg2d.cell import extend_axes_pos
   axes, elem, pos = aep
   axes, pos = extend_axes_pos(axes, pos)
@@ -97,7 +97,7 @@ def qe_input(aep, pwdict):
   elem_pos = dict(elements=elem, positions=fracs)
   text += pwscf.atomic_positions(elem_pos)
   # add cell
-  text += pwscf.cell_parameters(axes)
+  text += pwscf.cell_parameters(axes, unit=unit)
   return text
 
 def meta_from_input(finp, ndim=2):
